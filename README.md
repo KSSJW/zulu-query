@@ -13,6 +13,16 @@ An interactive Linux shell script to query the latest Azul Zulu OpenJDK builds a
 1. `chmod +x zulu-query.sh`
 2. `./zulu-query.sh`
 
+## Example Output
+
+```
+File Name: zulu27.30.201-ca-jdk27.0.1.1-linux_musl_x64.tar.gz
+Zulu Version: 27.30.201
+Java Version: 27.0.1.1
+SHA-256: a96a6534f1936ee63308cda8f71134abc78bb0918312e5a67c5bb1da222a0956
+Download URL: https://cdn.azul.com/zulu/bin/zulu27.30.201-ca-jdk27.0.1.1-linux_musl_x64.tar.gz
+```
+
 ## License
 
 MIT (MIT License)
