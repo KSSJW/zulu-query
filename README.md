@@ -13,6 +13,13 @@ An interactive Linux shell script to query the latest Azul Zulu OpenJDK builds a
 1. `chmod +x zulu-query.sh`
 2. `./zulu-query.sh`
 
+## Options
+
+- CPU Architecture
+- Java Major Version
+- Package Type
+- Archive Type
+
 ## Example Output
 
 ```
