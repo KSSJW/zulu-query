@@ -15,6 +15,7 @@ An interactive Linux shell script to query the latest Azul Zulu OpenJDK builds a
 
 ## Options
 
+- API Source
 - CPU Architecture
 - Java Major Version
 - Package Type

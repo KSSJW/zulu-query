@@ -34,6 +34,18 @@ done
 # Prompt
 msg "Please select the target type:"
 
+# Select API source
+msg2 "Please select the API source:"
+echo "  1) Azul Zulu Official API"
+echo "  2) Foojay Disco API (Discovery API)"
+read -rp "Enter choice [1-2] (default=1): " API_CHOICE
+
+case "$API_CHOICE" in
+    1|"") API_SOURCE="azul" ;;
+    2) API_SOURCE="disco" ;;
+    *) err "Invalid option. Exiting." >&2; exit 1 ;;
+esac
+
 # Select target CPU architecture
 msg2 "Select target CPU architecture:"
 echo "  1) x64 (x86_64)"
@@ -119,33 +131,96 @@ esac
 
 # Prompt
 pass "Selection complete."
-echo "Arch: $ARCH, Java: ${JAVA_VERSION:-latest}, Type: $PKG_TYPE, FX: $JAVAFX, CRaC: $CRAC"
+echo "API: $API_SOURCE, Arch: $ARCH, Java: ${JAVA_VERSION:-latest}, Type: $PKG_TYPE, FX: $JAVAFX, CRaC: $CRAC"
 msg "Fetching remote data..."
 
-# Build API query parameters
-API_BASE="https://api.azul.com/metadata/v1/zulu/packages"
-QUERY="os=linux&arch=${ARCH}&archive_type=${ARCHIVE}&java_package_type=${PKG_TYPE}&javafx_bundled=${JAVAFX}&crac_supported=${CRAC}&release_status=ga&availability_types=CA&latest=true"
+if [[ "$API_SOURCE" == "azul" ]]; then
 
-if [[ -n "$JAVA_VERSION" ]]; then
-    QUERY="${QUERY}&java_version=${JAVA_VERSION}"
+    # Azul Zulu Official API
+    API_BASE="https://api.azul.com/metadata/v1/zulu/packages"
+    QUERY="os=linux&arch=${ARCH}&archive_type=${ARCHIVE}&java_package_type=${PKG_TYPE}&javafx_bundled=${JAVAFX}&crac_supported=${CRAC}&release_status=ga&availability_types=CA&latest=true"
+
+    if [[ -n "$JAVA_VERSION" ]]; then
+        QUERY="${QUERY}&java_version=${JAVA_VERSION}"
+    fi
+
+    RAW_RESP=$(curl -fsSL "${API_BASE}/?${QUERY}")
+    PKG_INFO=$(printf '%s' "$RAW_RESP" | jq -c '
+        if type == "array" then
+            sort_by(.java_version // []) | reverse | .[0] // empty
+        else
+            empty
+        end
+    ')
+
+    if [[ -z "$PKG_INFO" ]]; then
+        err "No matching Zulu package found (API: azul, Arch: $ARCH, Java: ${JAVA_VERSION:-latest}, Type: $PKG_TYPE, FX: $JAVAFX, CRaC: $CRAC)." >&2
+        exit 1
+    fi
+
+    UUID=$(printf '%s' "$PKG_INFO" | jq -r '.package_uuid // ""')
+    FILE_NAME=$(printf '%s' "$PKG_INFO" | jq -r '.name // ""')
+    ZULU_VER=$(printf '%s' "$PKG_INFO" | jq -r '(.distro_version // []) | (if .[-1] == 0 then .[:-1] else . end) | join(".")')
+    JAVA_VER=$(printf '%s' "$PKG_INFO" | jq -r '(.java_version // []) | join(".")')
+    DOWNLOAD_URL=$(printf '%s' "$PKG_INFO" | jq -r '.download_url // ""')
+
+    # Fetch SHA-256 hash from package details
+    SHA256=$(curl -fsSL "${API_BASE}/${UUID}" | jq -r '.sha256_hash // ""')
+else
+
+    # Foojay Disco API v3.0
+    API_BASE="https://api.foojay.io/disco/v3.0/packages"
+    QUERY="distro=zulu&operating_system=linux&libc_type=glibc&architecture=${ARCH}&archive_type=${ARCHIVE}&package_type=${PKG_TYPE}&javafx_bundled=${JAVAFX}&release_status=ga&latest=available"
+
+    if [[ -n "$JAVA_VERSION" ]]; then
+        QUERY="${QUERY}&version=${JAVA_VERSION}"
+    fi
+
+    RAW_RESP=$(curl -fsSL "${API_BASE}?${QUERY}")
+    PKG_INFO=$(printf '%s' "$RAW_RESP" | jq -c --arg crac "$CRAC" '
+        (if type == "object" and (.result | type) == "array" then .result else [] end)
+        | map(select(
+            ((.filename // "") != "") and
+            (
+                ((.feature // [] | index("crac")) != null) or
+                ((.filename // "") | ascii_downcase | contains("crac"))
+            ) == ($crac == "true")
+        ))
+        | sort_by((.java_version // "") | gsub("\\+"; ".") | split(".") | map(tonumber? // 0))
+        | reverse
+        | .[0] // empty
+    ')
+
+    if [[ -z "$PKG_INFO" ]]; then
+        API_MSG=$(printf '%s' "$RAW_RESP" | jq -r 'if type == "object" then (.message // empty) else empty end')
+        if [[ -n "$API_MSG" ]]; then
+            err "Disco API message: ${API_MSG}" >&2
+        else
+            err "No matching Zulu package found (API: disco, Arch: $ARCH, Java: ${JAVA_VERSION:-latest}, Type: $PKG_TYPE, FX: $JAVAFX, CRaC: $CRAC)." >&2
+        fi
+        exit 1
+    fi
+
+    FILE_NAME=$(printf '%s' "$PKG_INFO" | jq -r '.filename // ""')
+    ZULU_VER=$(printf '%s' "$PKG_INFO" | jq -r '(.distribution_version // "") | split(".") | (if .[-1] == "0" then .[:-1] else . end) | join(".")')
+    JAVA_VER=$(printf '%s' "$PKG_INFO" | jq -r '.java_version // ""')
+    PKG_INFO_URI=$(printf '%s' "$PKG_INFO" | jq -r '.links.pkg_info_uri // ""')
+
+    if [[ -z "$PKG_INFO_URI" ]]; then
+        err "Missing package detail URI in Disco API response." >&2
+        exit 1
+    fi
+
+    # Fetch download URL and SHA-256 hash from package info URI
+    PKG_DETAIL=$(curl -fsSL "${PKG_INFO_URI}" | jq -c '(if type == "object" and (.result | type) == "array" then .result[0] else empty end) // empty')
+    if [[ -z "$PKG_DETAIL" ]]; then
+        err "Failed to retrieve package details from ${PKG_INFO_URI}." >&2
+        exit 1
+    fi
+
+    DOWNLOAD_URL=$(printf '%s' "$PKG_DETAIL" | jq -r '.direct_download_uri // ""')
+    SHA256=$(printf '%s' "$PKG_DETAIL" | jq -r '.checksum // ""')
 fi
-
-# Fetch the latest matching package metadata
-PKG_INFO=$(curl -fsSL "${API_BASE}/?${QUERY}" | jq -r 'sort_by(.java_version) | reverse | .[0] // empty')
-
-if [[ -z "$PKG_INFO" ]]; then
-    err "No matching Zulu package found (Arch: $ARCH, Java: ${JAVA_VERSION:-latest}, Type: $PKG_TYPE, FX: $JAVAFX, CRaC: $CRAC)." >&2
-    exit 1
-fi
-
-UUID=$(echo "$PKG_INFO" | jq -r '.package_uuid')
-FILE_NAME=$(echo "$PKG_INFO" | jq -r '.name')
-ZULU_VER=$(echo "$PKG_INFO" | jq -r '.distro_version | (if .[-1] == 0 then .[:-1] else . end) | join(".")')
-JAVA_VER=$(echo "$PKG_INFO" | jq -r '.java_version | join(".")')
-DOWNLOAD_URL=$(echo "$PKG_INFO" | jq -r '.download_url')
-
-# Fetch SHA-256 hash from package details
-SHA256=$(curl -fsSL "${API_BASE}/${UUID}" | jq -r '.sha256_hash')
 
 # Prompt
 pass "Data retrieved successfully."
