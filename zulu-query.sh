@@ -65,17 +65,22 @@ esac
 # Select Java major version
 msg2 "Select Java major version:"
 echo "  1) Latest"
-echo "  2) Custom"
-echo "  3) 25"
-echo "  4) 21"
-echo "  5) 17"
-echo "  6) 11"
-echo "  7) 8"
+echo "  2) 25"
+echo "  3) 21"
+echo "  4) 17"
+echo "  5) 11"
+echo "  6) 8"
+echo "  7) Custom"
 read -rp "Enter choice [1-7] (default=1): " VER_CHOICE
 
 case "${VER_CHOICE}" in
     1|"") JAVA_VERSION="" ;;
-    2)
+    2) JAVA_VERSION="25" ;;
+    3) JAVA_VERSION="21" ;;
+    4) JAVA_VERSION="17" ;;
+    5) JAVA_VERSION="11" ;;
+    6) JAVA_VERSION="8" ;;
+    7)
         read -rp "Enter custom Java major version: " CUSTOM_VER
         if [[ "${CUSTOM_VER}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
             warn "Attempt to use a custom version ${CUSTOM_VER} to match remote data."
@@ -85,11 +90,6 @@ case "${VER_CHOICE}" in
             exit 1
         fi
         ;;
-    3) JAVA_VERSION="25" ;;
-    4) JAVA_VERSION="21" ;;
-    5) JAVA_VERSION="17" ;;
-    6) JAVA_VERSION="11" ;;
-    7) JAVA_VERSION="8" ;;
     *) err "Invalid option. Exiting." >&2; exit 1 ;;
 esac
 
