@@ -36,8 +36,10 @@ msg "Please select the target type:"
 
 # Select API source
 msg2 "Please select the API source:"
+echo ""
 echo "  1) Azul Zulu Official API"
 echo "  2) Foojay Disco API (Discovery API)"
+echo ""
 read -rp "Enter choice [1-2] (default=1): " API_CHOICE
 
 case "${API_CHOICE}" in
@@ -48,10 +50,12 @@ esac
 
 # Select target CPU architecture
 msg2 "Select target CPU architecture:"
+echo ""
 echo "  1) x64 (x86_64)"
 echo "  2) x86 (x86_32)"
 echo "  3) aarch64 (ARM64)"
 echo "  4) arm (ARM32)"
+echo ""
 read -rp "Enter choice [1-4] (default=1): " ARCH_CHOICE
 
 case "${ARCH_CHOICE}" in
@@ -64,6 +68,7 @@ esac
 
 # Select Java major version
 msg2 "Select Java major version:"
+echo ""
 echo "  1) Latest"
 echo "  2) 25"
 echo "  3) 21"
@@ -71,6 +76,7 @@ echo "  4) 17"
 echo "  5) 11"
 echo "  6) 8"
 echo "  7) Custom"
+echo ""
 read -rp "Enter choice [1-7] (default=1): " VER_CHOICE
 
 case "${VER_CHOICE}" in
@@ -95,12 +101,14 @@ esac
 
 # Select package type
 msg2 "Select package type:"
+echo ""
 echo "  1) JDK"
 echo "  2) JDK FX"
 echo "  3) JDK CRaC"
 echo "  4) JRE"
 echo "  5) JRE FX"
 echo "  6) JRE CRaC"
+echo ""
 read -rp "Enter choice [1-6] (default=1): " PKG_CHOICE
 
 case "${PKG_CHOICE}" in
@@ -115,10 +123,12 @@ esac
 
 # Select archive type
 msg2 "Select archive type:"
+echo ""
 echo "  1) tar.gz"
 echo "  2) zip"
 echo "  3) deb"
 echo "  4) rpm"
+echo ""
 read -rp "Enter choice [1-4] (default=1): " ARCHIVE_CHOICE
 
 case "${ARCHIVE_CHOICE}" in
