@@ -11,6 +11,10 @@ msg2() {
     printf "\e[1;32m==>\e[0m \e[1;34m%s\e[0m\n" "$1"
 }
 
+ask() {
+    printf "\e[1;32m==>\e[0m %s\e[0m\n" "$1"
+}
+
 pass() {
     printf "\e[1;32m==> %s\e[0m\n" "$1"
 }
@@ -40,7 +44,7 @@ echo ""
 echo "  1) Azul Zulu Official API"
 echo "  2) Foojay Disco API (Discovery API)"
 echo ""
-read -rp "Enter choice [1-2] (default=1): " API_CHOICE
+read -rp "$(ask "Enter choice [1-2] (default=1): ")" API_CHOICE
 
 case "${API_CHOICE}" in
     1|"") API_SOURCE="azul" ;;
@@ -56,7 +60,7 @@ echo "  2) x86 (x86_32)"
 echo "  3) aarch64 (ARM64)"
 echo "  4) arm (ARM32)"
 echo ""
-read -rp "Enter choice [1-4] (default=1): " ARCH_CHOICE
+read -rp "$(ask "Enter choice [1-4] (default=1): ")" ARCH_CHOICE
 
 case "${ARCH_CHOICE}" in
     1|"") ARCH="x64" ;;
@@ -77,7 +81,7 @@ echo "  5) 11"
 echo "  6) 8"
 echo "  7) Custom"
 echo ""
-read -rp "Enter choice [1-7] (default=1): " VER_CHOICE
+read -rp "$(ask "Enter choice [1-7] (default=1): ")" VER_CHOICE
 
 case "${VER_CHOICE}" in
     1|"") JAVA_VERSION="" ;;
@@ -87,7 +91,7 @@ case "${VER_CHOICE}" in
     5) JAVA_VERSION="11" ;;
     6) JAVA_VERSION="8" ;;
     7)
-        read -rp "Enter custom Java major version: " CUSTOM_VER
+        read -rp "$(ask "Enter custom Java major version: ")" CUSTOM_VER
         if [[ "${CUSTOM_VER}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
             warn "Attempt to use a custom version ${CUSTOM_VER} to match remote data."
             JAVA_VERSION="${CUSTOM_VER}"
@@ -109,7 +113,7 @@ echo "  4) JRE"
 echo "  5) JRE FX"
 echo "  6) JRE CRaC"
 echo ""
-read -rp "Enter choice [1-6] (default=1): " PKG_CHOICE
+read -rp "$(ask "Enter choice [1-6] (default=1): ")" PKG_CHOICE
 
 case "${PKG_CHOICE}" in
     1|"") PKG_TYPE="jdk"; JAVAFX="false"; CRAC="false" ;;
@@ -129,7 +133,7 @@ echo "  2) zip"
 echo "  3) deb"
 echo "  4) rpm"
 echo ""
-read -rp "Enter choice [1-4] (default=1): " ARCHIVE_CHOICE
+read -rp "$(ask "Enter choice [1-4] (default=1): ")" ARCHIVE_CHOICE
 
 case "${ARCHIVE_CHOICE}" in
     1|"") ARCHIVE="tar.gz" ;;
