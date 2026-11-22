@@ -174,11 +174,11 @@ if [[ "${API_SOURCE}" == "azul" ]]; then
         QUERY="${QUERY}&java_version=${JAVA_VERSION}"
     fi
 
-    note "Fetching data using 'curl'."
+    note "Fetching data will use 'curl'."
 
     RAW_RESP=$(curl -fsSL "${API_BASE}/?${QUERY}")
 
-    note "Parsing data using 'jq'."
+    note "Parsing data will use 'jq'."
 
     PKG_INFO=$(printf '%s' "${RAW_RESP}" | jq -c '
         if type == "array" then
@@ -211,11 +211,11 @@ else
         QUERY="${QUERY}&version=${JAVA_VERSION}"
     fi
 
-    note "Fetching data using 'curl'."
+    note "Fetching data will use 'curl'."
 
     RAW_RESP=$(curl -fsSL "${API_BASE}?${QUERY}")
 
-    note "Parsing data using 'jq'."
+    note "Parsing data will use 'jq'."
 
     PKG_INFO=$(printf '%s' "${RAW_RESP}" | jq -c --arg crac "${CRAC}" '
         (if type == "object" and (.result | type) == "array" then .result else [] end)
