@@ -44,10 +44,10 @@ for cmd in curl jq; do
 done
 
 # Prompt
-msg "Please select the target type:"
+msg "Capturing input target type..."
 
 # Select API source
-msg2 "Please select the API source:"
+msg2 "Capturing API source..."
 echo ""
 echo "  1) Azul Zulu Official API"
 echo "  2) Foojay Disco API (Discovery API)"
@@ -61,7 +61,7 @@ case "${API_CHOICE}" in
 esac
 
 # Select target CPU architecture
-msg2 "Select target CPU architecture:"
+msg2 "Capturing target CPU architecture..."
 echo ""
 echo "  1) x64 (x86_64)"
 echo "  2) x86 (x86_32)"
@@ -79,7 +79,7 @@ case "${ARCH_CHOICE}" in
 esac
 
 # Select Java major version
-msg2 "Select Java major version:"
+msg2 "Capturing Java major version..."
 echo ""
 echo "  1) Latest"
 echo "  2) 25"
@@ -112,7 +112,7 @@ case "${VER_CHOICE}" in
 esac
 
 # Select package type
-msg2 "Select package type:"
+msg2 "Capturing package type..."
 echo ""
 echo "  1) JDK"
 echo "  2) JDK FX"
@@ -134,7 +134,7 @@ case "${PKG_CHOICE}" in
 esac
 
 # Select archive type
-msg2 "Select archive type:"
+msg2 "Capturing archive type..."
 echo ""
 echo "  1) tar.gz"
 echo "  2) zip"
