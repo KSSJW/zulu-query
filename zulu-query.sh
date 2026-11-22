@@ -12,7 +12,7 @@ msg2() {
 }
 
 msg3() {
-    printf "\e[1;32m ->\e[0m \e[1;34m%s\e[0m\n" "$1"
+    printf "\e[1;34m ->\e[0m \e[1;34m%s\e[0m\n" "$1"
 }
 
 ask() {
