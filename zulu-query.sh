@@ -11,8 +11,16 @@ msg2() {
     printf "\e[1;32m==>\e[0m \e[1;34m%s\e[0m\n" "$1"
 }
 
+msg3() {
+    printf "\e[1;32m ->\e[0m \e[1;34m%s\e[0m\n" "$1"
+}
+
 ask() {
-    printf "\e[1;32m==>\e[0m %s\e[0m\n" "$1"
+    printf "\e[1;32m==>\e[0m %s\n" "$1"
+}
+
+note() {
+    printf "\e[1;33m ->\e[0m %s\n" "$1"
 }
 
 pass() {
@@ -93,7 +101,7 @@ case "${VER_CHOICE}" in
     7)
         read -rp "$(ask "Enter custom Java major version: ")" CUSTOM_VER
         if [[ "${CUSTOM_VER}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
-            warn "Attempt to use a custom version ${CUSTOM_VER} to match remote data."
+            note "Attempt to use a custom version ${CUSTOM_VER} to match remote data."
             JAVA_VERSION="${CUSTOM_VER}"
         else
             err "Invalid version format. Exiting." >&2
