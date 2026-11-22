@@ -101,6 +101,7 @@ case "${VER_CHOICE}" in
     5) JAVA_VERSION="11" ;;
     6) JAVA_VERSION="8" ;;
     7)
+        msg3 "Capturing custom version..."
         read -rp "$(ask "Enter custom Java major version: ")" CUSTOM_VER
         if [[ "${CUSTOM_VER}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
             note "Attempt to use a custom version ${CUSTOM_VER} to match remote data."
