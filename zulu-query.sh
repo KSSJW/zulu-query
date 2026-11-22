@@ -251,7 +251,7 @@ fi
 
 # Check if any fields are empty
 if [[ -z "${FILE_NAME}" || -z "${ZULU_VER}" || -z "${JAVA_VER}" || -z "${SHA256}" || -z "${DOWNLOAD_URL}" ]]; then
-    note "Incomplete package metadata, empty fields detected."
+    warn "Incomplete package metadata, empty fields detected."
 fi
 
 # Prompt
